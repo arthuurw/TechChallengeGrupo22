@@ -1,0 +1,30 @@
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31612.314
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VideoAnalyzer.Api", "src/VideoAnalyzer.Api/VideoAnalyzer.Api.csproj", "{E86DFF42-17E7-4E6A-9E8B-5C7D73491D23}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VideoAnalyzer.Processor", "src/VideoAnalyzer.Processor/VideoAnalyzer.Processor.csproj", "{1D5B3ACF-6B01-463A-9770-12DFC08D3D2E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VideoAnalyzer.Shared", "src/VideoAnalyzer.Shared/VideoAnalyzer.Shared.csproj", "{BD913992-BE2B-4F30-B04B-44CC77908AD3}"
+EndProject
+Global
+    GlobalSection(SolutionConfigurationPlatforms) = preSolution
+        Debug|Any CPU = Debug|Any CPU
+        Release|Any CPU = Release|Any CPU
+    EndGlobalSection
+    GlobalSection(ProjectConfigurationPlatforms) = postSolution
+        {E86DFF42-17E7-4E6A-9E8B-5C7D73491D23}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+        {E86DFF42-17E7-4E6A-9E8B-5C7D73491D23}.Debug|Any CPU.Build.0 = Debug|Any CPU
+        {E86DFF42-17E7-4E6A-9E8B-5C7D73491D23}.Release|Any CPU.ActiveCfg = Release|Any CPU
+        {E86DFF42-17E7-4E6A-9E8B-5C7D73491D23}.Release|Any CPU.Build.0 = Release|Any CPU
+        {1D5B3ACF-6B01-463A-9770-12DFC08D3D2E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+        {1D5B3ACF-6B01-463A-9770-12DFC08D3D2E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+        {1D5B3ACF-6B01-463A-9770-12DFC08D3D2E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+        {1D5B3ACF-6B01-463A-9770-12DFC08D3D2E}.Release|Any CPU.Build.0 = Release|Any CPU
+        {BD913992-BE2B-4F30-B04B-44CC77908AD3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+        {BD913992-BE2B-4F30-B04B-44CC77908AD3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+        {BD913992-BE2B-4F30-B04B-44CC77908AD3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+        {BD913992-BE2B-4F30-B04B-44CC77908AD3}.Release|Any CPU.Build.0 = Release|Any CPU
+    EndGlobalSection
+EndGlobal

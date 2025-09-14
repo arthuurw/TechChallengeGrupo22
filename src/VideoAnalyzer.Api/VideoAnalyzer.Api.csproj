@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+  <PropertyGroup>
+    <TargetFramework>net7.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="RabbitMQ.Client" Version="6.6.0" />
+    <PackageReference Include="StackExchange.Redis" Version="2.6.122" />
+    <PackageReference Include="Microsoft.AspNetCore.SignalR" Version="1.1.0" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="../VideoAnalyzer.Shared/VideoAnalyzer.Shared.csproj" />
+  </ItemGroup>
+</Project>

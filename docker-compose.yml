@@ -1,0 +1,28 @@
+version: '3.9'
+services:
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile.api
+    ports:
+      - "8080:80"
+    depends_on:
+      - rabbitmq
+      - redis
+  processor:
+    build:
+      context: .
+      dockerfile: Dockerfile.processor
+    depends_on:
+      - rabbitmq
+      - redis
+      - api
+  rabbitmq:
+    image: rabbitmq:3-management
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+  redis:
+    image: redis:alpine
+    ports:
+      - "6379:6379"
