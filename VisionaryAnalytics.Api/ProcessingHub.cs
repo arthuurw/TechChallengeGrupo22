@@ -5,11 +5,11 @@ namespace VisionaryAnalytics.Api;
 public class ProcessingHub : Hub
 {
     // Cliente pode entrar em um "grupo" por jobId para receber eventos
-    public Task SubscribeToJob(Guid jobId)
+    public Task InscreverNoJob(Guid jobId)
         => Groups.AddToGroupAsync(Context.ConnectionId, jobId.ToString());
 
     // Método chamado pelo Worker (via SignalR Client)
-    public async Task NotifyCompleted(Guid jobId, int resultsCount)
+    public async Task NotificarConclusao(Guid jobId, int resultsCount)
         => await Clients.Group(jobId.ToString())
-            .SendAsync("processingCompleted", new { jobId, resultsCount });
+            .SendAsync("processamentoConcluido", new { jobId, resultsCount });
 }

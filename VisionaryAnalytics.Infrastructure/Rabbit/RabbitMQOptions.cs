@@ -1,9 +1,22 @@
-﻿namespace VisionaryAnalytics.Infrastructure.Rabbit;
+using System.ComponentModel.DataAnnotations;
+
+namespace VisionaryAnalytics.Infrastructure.Rabbit;
 
 public record RabbitMqOptions
 {
-    public string HostName { get; init; } = "rabbitmq";
-    public string UserName { get; init; } = "guest";
-    public string Password { get; init; } = "guest";
-    public string QueueName { get; init; } = "video-jobs";
+    [Required]
+    [MinLength(1)]
+    public string HostName { get; set; } = "rabbitmq";
+
+    [Required]
+    [MinLength(1)]
+    public string UserName { get; set; } = "guest";
+
+    [Required]
+    [MinLength(1)]
+    public string Password { get; set; } = "guest";
+
+    [Required]
+    [MinLength(1)]
+    public string QueueName { get; set; } = "video-jobs";
 }

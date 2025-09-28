@@ -1,5 +1,6 @@
-using StackExchange.Redis;
+using System.IO;
 using System.Text.Json;
+using StackExchange.Redis;
 using VisionaryAnalytics.Infrastructure.Interface;
 
 namespace VisionaryAnalytics.Infrastructure.Redis;
@@ -17,12 +18,13 @@ public class RedisVideoJobStore(IConnectionMultiplexer mux) : IVideoJobStore
     public async Task InitAsync(Guid jobId, string fileName, double fps)
     {
         var db = _mux.GetDatabase();
-        await db.StringSetAsync(KeyStatus(jobId), "Queued");
+        var safeFileName = Path.GetFileName(fileName);
+        await db.StringSetAsync(KeyStatus(jobId), "NaFila");
         await db.HashSetAsync(KeyMeta(jobId), new HashEntry[]
         {
-            new("filename", fileName),
+            new("nomeArquivo", safeFileName),
             new("fps", fps.ToString()),
-            new("createdAt", DateTimeOffset.UtcNow.ToString("O"))
+            new("criadoEm", DateTimeOffset.UtcNow.ToString("O"))
         });
         await db.KeyDeleteAsync(KeyResults(jobId));
     }

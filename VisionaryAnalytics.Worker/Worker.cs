@@ -1,5 +1,7 @@
+using System.IO;
 using System.Text;
 using System.Text.Json;
+using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -16,6 +18,11 @@ namespace VisionaryAnalytics.Worker;
 
 public class Worker : BackgroundService
 {
+    private static readonly JsonSerializerOptions SerializerOptions = new(JsonSerializerDefaults.Web)
+    {
+        PropertyNameCaseInsensitive = true
+    };
+
     private readonly ILogger<Worker> _logger;
     private readonly IServiceScopeFactory _scopeFactory;
     private readonly RabbitMqOptions _options;
@@ -39,7 +46,10 @@ public class Worker : BackgroundService
             HostName = _options.HostName,
             UserName = _options.UserName,
             Password = _options.Password,
-            DispatchConsumersAsync = true
+            DispatchConsumersAsync = true,
+            AutomaticRecoveryEnabled = true,
+            TopologyRecoveryEnabled = true,
+            ClientProvidedName = "VisionaryAnalytics.Worker"
         };
 
         _connection = factory.CreateConnection();
@@ -63,16 +73,25 @@ public class Worker : BackgroundService
             VideoJobMessage? job = null;
             try
             {
-                job = JsonSerializer.Deserialize<VideoJobMessage>(Encoding.UTF8.GetString(ea.Body.ToArray()));
+                var payload = Encoding.UTF8.GetString(ea.Body.Span);
+                job = JsonSerializer.Deserialize<VideoJobMessage>(payload, SerializerOptions);
                 if (job is null)
                 {
-                    _logger.LogWarning("Invalid message received; discarding.");
+                    _logger.LogWarning("Mensagem inválida recebida; descartando.");
                     _channel!.BasicAck(ea.DeliveryTag, false);
                     return;
                 }
 
-                _logger.LogInformation("Processing job {JobId}", job.JobId);
-                await store.SetStatusAsync(job.JobId, "Processing").ConfigureAwait(false);
+                _logger.LogInformation("Processando job {JobId}", job.JobId);
+                await store.SetStatusAsync(job.JobId, "Processando").ConfigureAwait(false);
+
+                if (!File.Exists(job.FilePath))
+                {
+                    _logger.LogWarning("Arquivo de origem {FilePath} do job {JobId} não foi encontrado.", job.FilePath, job.JobId);
+                    await store.SetStatusAsync(job.JobId, "Falha:ArquivoAusente").ConfigureAwait(false);
+                    _channel!.BasicAck(ea.DeliveryTag, false);
+                    return;
+                }
 
                 var results = await processor.AnalyzeAsync(job, stoppingToken).ConfigureAwait(false);
                 foreach (var result in results)
@@ -80,22 +99,27 @@ public class Worker : BackgroundService
                     await store.AddResultAsync(job.JobId, result.Content, result.TimestampSeconds).ConfigureAwait(false);
                 }
 
-                await store.SetStatusAsync(job.JobId, "Completed").ConfigureAwait(false);
-                await notifier.NotifyCompletedAsync(job.JobId, results.Count, stoppingToken).ConfigureAwait(false);
+                await store.SetStatusAsync(job.JobId, "Concluido").ConfigureAwait(false);
+                await notifier.NotificarConclusaoAsync(job.JobId, results.Count, stoppingToken).ConfigureAwait(false);
 
+                _channel!.BasicAck(ea.DeliveryTag, false);
+            }
+            catch (JsonException ex)
+            {
+                _logger.LogWarning(ex, "Falha ao desserializar mensagem com delivery tag {DeliveryTag}.", ea.DeliveryTag);
                 _channel!.BasicAck(ea.DeliveryTag, false);
             }
             catch (OperationCanceledException)
             {
-                _logger.LogInformation("Cancellation requested. Requeueing message.");
+                _logger.LogInformation("Cancelamento solicitado. Mensagem retornará para a fila.");
                 _channel!.BasicNack(ea.DeliveryTag, false, true);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Failed to process job {JobId}", job?.JobId);
+                _logger.LogError(ex, "Falha ao processar o job {JobId}", job?.JobId);
                 if (job is not null)
                 {
-                    await store.SetStatusAsync(job.JobId, "Failed").ConfigureAwait(false);
+                    await store.SetStatusAsync(job.JobId, "Falha").ConfigureAwait(false);
                 }
 
                 _channel!.BasicNack(ea.DeliveryTag, false, false);
@@ -104,7 +128,7 @@ public class Worker : BackgroundService
 
         _channel.BasicConsume(queue: _options.QueueName, autoAck: false, consumer: consumer);
 
-        var completion = new TaskCompletionSource();
+        var completion = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
         stoppingToken.Register(() => completion.TrySetResult());
         return completion.Task;
     }

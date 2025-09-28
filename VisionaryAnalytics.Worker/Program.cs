@@ -18,10 +18,19 @@ builder.Services
         opt.UserName = configuration["RABBITMQ__USER"] ?? opt.UserName;
         opt.Password = configuration["RABBITMQ__PASSWORD"] ?? opt.Password;
         opt.QueueName = configuration["RABBITMQ__QUEUE"] ?? opt.QueueName;
-    });
+    })
+    .ValidateDataAnnotations()
+    .ValidateOnStart();
 
 builder.Services.AddSingleton<IConnectionMultiplexer>(_ =>
-    ConnectionMultiplexer.Connect(configuration["REDIS__CONNECTION"] ?? "redis:6379"));
+{
+    var redisConfiguration = configuration["REDIS__CONNECTION"] ?? "redis:6379";
+    var options = ConfigurationOptions.Parse(redisConfiguration);
+    options.AbortOnConnectFail = false;
+    options.ConnectRetry = 3;
+    options.ClientName = "VisionaryAnalytics.Worker";
+    return ConnectionMultiplexer.Connect(options);
+});
 
 builder.Services.AddSingleton<IVideoJobStore, RedisVideoJobStore>();
 builder.Services.AddSingleton<VideoProcessingService>();

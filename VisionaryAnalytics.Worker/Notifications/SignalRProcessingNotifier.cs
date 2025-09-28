@@ -15,7 +15,7 @@ public sealed class SignalRProcessingNotifier : IProcessingNotifier, IAsyncDispo
         _logger = logger;
         var hubUrl = configuration["SIGNALR__HUB_URL"]
             ?? configuration.GetSection("SignalR")["HubUrl"]
-            ?? "http://localhost:8080/hubs/processing";
+            ?? "http://localhost:8080/hubs/processamento";
 
         _connection = new HubConnectionBuilder()
             .WithUrl(hubUrl)
@@ -23,17 +23,17 @@ public sealed class SignalRProcessingNotifier : IProcessingNotifier, IAsyncDispo
             .Build();
     }
 
-    public async Task NotifyCompletedAsync(Guid jobId, int resultsCount, CancellationToken cancellationToken = default)
+    public async Task NotificarConclusaoAsync(Guid jobId, int resultsCount, CancellationToken cancellationToken = default)
     {
         try
         {
             await EnsureConnectedAsync(cancellationToken).ConfigureAwait(false);
-            await _connection.InvokeAsync("NotifyCompleted", jobId, resultsCount, cancellationToken)
+            await _connection.InvokeAsync("NotificarConclusao", jobId, resultsCount, cancellationToken)
                 .ConfigureAwait(false);
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Failed to notify completion for job {JobId}", jobId);
+            _logger.LogError(ex, "Falha ao notificar a conclusão do job {JobId}", jobId);
         }
     }
 

@@ -56,7 +56,7 @@ public sealed class VideoProcessingService
 
             if (files.Length == 0)
             {
-                _logger.LogWarning("No frames extracted for job {JobId}", job.JobId);
+                _logger.LogWarning("Nenhum frame extraído para o job {JobId}", job.JobId);
                 return Array.Empty<VideoJobResult>();
             }
 
@@ -84,7 +84,7 @@ public sealed class VideoProcessingService
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogWarning(ex, "Failed to analyze frame {Frame} for job {JobId}", frame.path, job.JobId);
+                    _logger.LogWarning(ex, "Falha ao analisar o frame {Frame} do job {JobId}", frame.path, job.JobId);
                 }
             });
 
@@ -103,11 +103,11 @@ public sealed class VideoProcessingService
             }
             catch (IOException ex)
             {
-                _logger.LogDebug(ex, "Failed to clean temporary directory for job {JobId}", job.JobId);
+                _logger.LogDebug(ex, "Falha ao limpar o diretório temporário do job {JobId}", job.JobId);
             }
             catch (UnauthorizedAccessException ex)
             {
-                _logger.LogDebug(ex, "Unauthorized deleting temporary directory for job {JobId}", job.JobId);
+                _logger.LogDebug(ex, "Sem permissão para remover o diretório temporário do job {JobId}", job.JobId);
             }
         }
     }
