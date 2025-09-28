@@ -1,4 +1,6 @@
-﻿namespace VisionaryAnalytics.Infrastructure.Interface;
+using VisionaryAnalytics.Infrastructure;
+
+namespace VisionaryAnalytics.Infrastructure.Interface;
 
 public interface IVideoJobStore
 {
@@ -6,5 +8,5 @@ public interface IVideoJobStore
     Task SetStatusAsync(Guid jobId, string status);
     Task<string?> GetStatusAsync(Guid jobId);
     Task AddResultAsync(Guid jobId, string content, double timestampSec);
-    Task<object> GetResultsAsync(Guid jobId);
+    Task<IReadOnlyList<VideoJobResult>> GetResultsAsync(Guid jobId);
 }

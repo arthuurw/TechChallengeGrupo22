@@ -1,6 +1,5 @@
 using StackExchange.Redis;
 using VisionaryAnalytics.Api;
-using VisionaryAnalytics.Infrastructure;
 using VisionaryAnalytics.Infrastructure.Interface;
 using VisionaryAnalytics.Infrastructure.Rabbit;
 using VisionaryAnalytics.Infrastructure.Redis;
@@ -39,10 +38,10 @@ app.UseSwaggerUI();
 
 app.MapHealthChecks("/health");
 
-// Hub para notificações
+// Hub para notificaÃ§Ãµes
 app.MapHub<ProcessingHub>("/hubs/processing");
 
-// Upload de vídeo
+// Upload de vÃ­deo
 app.MapPost("/videos", async (HttpRequest req, IRabbitMqPublisher bus, IVideoJobStore store) =>
 {
     if (!req.HasFormContentType) return Results.BadRequest("Form-data required");
@@ -74,11 +73,27 @@ app.MapPost("/videos", async (HttpRequest req, IRabbitMqPublisher bus, IVideoJob
 });
 
 // Status
-app.MapGet("/videos/{jobId:guid}/status", async (Guid jobId, IVideoJobStore store)
-    => Results.Ok(new { jobId, status = await store.GetStatusAsync(jobId) }));
+app.MapGet("/videos/{jobId:guid}/status", async (Guid jobId, IVideoJobStore store) =>
+{
+    var status = await store.GetStatusAsync(jobId);
+    return status is null
+        ? Results.NotFound()
+        : Results.Ok(new { jobId, status });
+});
 
 // Resultados
-app.MapGet("/videos/{jobId:guid}/results", async (Guid jobId, IVideoJobStore store)
-    => Results.Ok(await store.GetResultsAsync(jobId)));
+app.MapGet("/videos/{jobId:guid}/results", async (Guid jobId, IVideoJobStore store) =>
+{
+    var status = await store.GetStatusAsync(jobId);
+    if (status is null) return Results.NotFound();
+
+    var results = await store.GetResultsAsync(jobId);
+    return Results.Ok(new
+    {
+        jobId,
+        status,
+        results
+    });
+});
 
 app.Run();

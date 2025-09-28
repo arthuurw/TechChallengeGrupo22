@@ -1,4 +1,3 @@
-﻿using Microsoft.EntityFrameworkCore.Metadata;
 using RabbitMQ.Client;
 using System.Text;
 using System.Text.Json;

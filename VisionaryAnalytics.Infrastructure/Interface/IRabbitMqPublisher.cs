@@ -1,4 +1,4 @@
-﻿namespace VisionaryAnalytics.Infrastructure.Interface;
+namespace VisionaryAnalytics.Infrastructure.Interface;
 
 public interface IRabbitMqPublisher
 {
