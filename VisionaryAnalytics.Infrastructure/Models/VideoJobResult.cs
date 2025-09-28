@@ -1,3 +1,3 @@
 namespace VisionaryAnalytics.Infrastructure.Models;
 
-public sealed record VideoJobResult(string Content, double TimestampSeconds);
+public sealed record VideoJobResult(string Conteudo, double InstanteSegundos);

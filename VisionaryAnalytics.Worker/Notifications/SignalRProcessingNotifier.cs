@@ -33,7 +33,7 @@ public sealed class SignalRProcessingNotifier : IProcessingNotifier
         }
         catch (Exception ex)
         {
-            _logger.LogWarning(ex, "Failed to notify completion for job {JobId}", jobId);
+            _logger.LogWarning(ex, "Falha ao notificar a conclusão do job {JobId}", jobId);
         }
     }
 
@@ -50,7 +50,7 @@ public sealed class SignalRProcessingNotifier : IProcessingNotifier
         }
         catch (Exception ex)
         {
-            _logger.LogWarning(ex, "Failed to notify failure for job {JobId}", jobId);
+            _logger.LogWarning(ex, "Falha ao notificar a falha do job {JobId}", jobId);
         }
     }
 
@@ -63,7 +63,7 @@ public sealed class SignalRProcessingNotifier : IProcessingNotifier
 
         if (string.IsNullOrWhiteSpace(_options.HubUrl))
         {
-            _logger.LogDebug("SignalR hub URL not configured; skipping notifications");
+            _logger.LogDebug("URL do hub SignalR não configurada; notificações serão ignoradas");
             return false;
         }
 
@@ -92,7 +92,7 @@ public sealed class SignalRProcessingNotifier : IProcessingNotifier
         }
         catch (Exception ex)
         {
-            _logger.LogWarning(ex, "Unable to connect to SignalR hub at {HubUrl}", _options.HubUrl);
+            _logger.LogWarning(ex, "Não foi possível conectar ao hub SignalR em {HubUrl}", _options.HubUrl);
             return false;
         }
         finally

@@ -57,7 +57,7 @@ app.MapPost("/videos", async (HttpRequest request, IRabbitMqPublisher bus, IVide
 {
     if (!request.HasFormContentType)
     {
-        return Results.BadRequest("Form-data required");
+        return Results.BadRequest("É necessário enviar os dados no formato form-data");
     }
 
     var form = await request.ReadFormAsync(cancellationToken);
@@ -110,7 +110,7 @@ app.MapGet("/videos/{jobId:guid}/status", async (Guid jobId, IVideoJobStore stor
     {
         jobId,
         status = state.Status,
-        errorMessage = state.ErrorMessage,
+        errorMessage = state.MensagemErro,
         metadata
     });
 });
@@ -136,7 +136,7 @@ app.MapGet("/videos/{jobId:guid}/results", async (Guid jobId, IVideoJobStore sto
     {
         jobId,
         status = state.Status,
-        errorMessage = state.ErrorMessage,
+        errorMessage = state.MensagemErro,
         metadata,
         results
     });

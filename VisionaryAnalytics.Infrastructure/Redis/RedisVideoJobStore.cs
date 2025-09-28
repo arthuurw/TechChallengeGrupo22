@@ -19,9 +19,9 @@ public class RedisVideoJobStore(IConnectionMultiplexer multiplexer) : IVideoJobS
         await db.HashSetAsync(KeyMeta(jobId),
             new HashEntry[]
             {
-                new("filename", fileName),
+                new("nomeArquivo", fileName),
                 new("fps", fps.ToString("G17", System.Globalization.CultureInfo.InvariantCulture)),
-                new("createdAt", DateTimeOffset.UtcNow.ToString("O"))
+                new("criadoEm", DateTimeOffset.UtcNow.ToString("O"))
             });
     }
 
@@ -57,7 +57,7 @@ public class RedisVideoJobStore(IConnectionMultiplexer multiplexer) : IVideoJobS
     {
         var db = _multiplexer.GetDatabase();
         var payload = JsonSerializer.Serialize(result, SerializerOptions);
-        await db.SortedSetAddAsync(KeyResults(jobId), payload, result.TimestampSeconds);
+        await db.SortedSetAddAsync(KeyResults(jobId), payload, result.InstanteSegundos);
     }
 
     public async Task<IReadOnlyList<VideoJobResult>> GetResultsAsync(Guid jobId, CancellationToken cancellationToken = default)
@@ -96,7 +96,7 @@ public class RedisVideoJobStore(IConnectionMultiplexer multiplexer) : IVideoJobS
         }
 
         var map = values.ToDictionary(x => x.Name.ToString(), x => x.Value.ToString());
-        if (!map.TryGetValue("filename", out var fileName) || !map.TryGetValue("fps", out var fpsRaw))
+        if (!map.TryGetValue("nomeArquivo", out var fileName) || !map.TryGetValue("fps", out var fpsRaw))
         {
             return null;
         }
@@ -105,7 +105,7 @@ public class RedisVideoJobStore(IConnectionMultiplexer multiplexer) : IVideoJobS
             ? parsedFps
             : 0d;
 
-        var createdAt = map.TryGetValue("createdAt", out var createdAtRaw) && DateTimeOffset.TryParse(createdAtRaw, out var parsedCreatedAt)
+        var createdAt = map.TryGetValue("criadoEm", out var createdAtRaw) && DateTimeOffset.TryParse(createdAtRaw, out var parsedCreatedAt)
             ? parsedCreatedAt
             : DateTimeOffset.MinValue;
 
