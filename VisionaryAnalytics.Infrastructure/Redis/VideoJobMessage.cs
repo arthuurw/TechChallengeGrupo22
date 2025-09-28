@@ -1,3 +1,5 @@
+using System;
+
 namespace VisionaryAnalytics.Infrastructure.Redis;
 
 public sealed record VideoJobMessage(
