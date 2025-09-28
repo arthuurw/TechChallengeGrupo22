@@ -1,0 +1,59 @@
+version: "3.9"
+
+services:
+  rabbitmq:
+    image: rabbitmq:3.13-management
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile.api
+    depends_on:
+      - rabbitmq
+      - redis
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      UPLOAD_PATH: /data/videos
+      REDIS__CONNECTION: redis:6379
+      RABBITMQ__HOST: rabbitmq
+      RABBITMQ__USER: guest
+      RABBITMQ__PASSWORD: guest
+      RABBITMQ__QUEUE: video-jobs
+    volumes:
+      - videos-data:/data/videos
+    ports:
+      - "8080:8080"
+
+  worker:
+    build:
+      context: .
+      dockerfile: Dockerfile.worker
+    depends_on:
+      - rabbitmq
+      - redis
+      - api
+    environment:
+      DOTNET_ENVIRONMENT: Production
+      REDIS__CONNECTION: redis:6379
+      RABBITMQ__HOST: rabbitmq
+      RABBITMQ__USER: guest
+      RABBITMQ__PASSWORD: guest
+      RABBITMQ__QUEUE: video-jobs
+      SIGNALR__HUBURL: http://api:8080/hubs/processing
+      FFMPEG__BINARY_FOLDER: /usr/bin
+    volumes:
+      - videos-data:/data/videos
+
+volumes:
+  videos-data:
