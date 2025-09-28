@@ -1,1 +1,0 @@
-# TechChallengeGrupo22
