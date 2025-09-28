@@ -48,7 +48,7 @@ public sealed class VideoJobProcessor : IVideoJobProcessor
             const string errorMessage = "Arquivo de vídeo não encontrado para processamento";
             await _store.SetStatusAsync(message.JobId, VideoJobStatuses.Failed, errorMessage, cancellationToken);
             await _notifier.NotifyFailedAsync(message.JobId, errorMessage, cancellationToken);
-            _logger.LogWarning("Video file {FilePath} not found for job {JobId}", message.FilePath, message.JobId);
+            _logger.LogWarning("Arquivo de vídeo {FilePath} não foi encontrado para o job {JobId}", message.FilePath, message.JobId);
             return 0;
         }
 
@@ -70,7 +70,7 @@ public sealed class VideoJobProcessor : IVideoJobProcessor
 
             if (frames.Length == 0)
             {
-                _logger.LogInformation("No frames extracted for job {JobId}", message.JobId);
+                _logger.LogInformation("Nenhum quadro foi extraído para o job {JobId}", message.JobId);
             }
 
             var results = new ConcurrentBag<VideoJobResult>();
@@ -92,7 +92,7 @@ public sealed class VideoJobProcessor : IVideoJobProcessor
             });
 
             var orderedResults = results
-                .OrderBy(result => result.TimestampSeconds)
+                .OrderBy(result => result.InstanteSegundos)
                 .ToList();
 
             foreach (var result in orderedResults)
@@ -103,13 +103,13 @@ public sealed class VideoJobProcessor : IVideoJobProcessor
             await _store.SetStatusAsync(message.JobId, VideoJobStatuses.Completed, cancellationToken: cancellationToken);
             await _notifier.NotifyCompletedAsync(message.JobId, orderedResults.Count, cancellationToken);
 
-            _logger.LogInformation("Job {JobId} completed. QR codes encontrados: {Count}", message.JobId, orderedResults.Count);
+            _logger.LogInformation("Job {JobId} concluído. QR codes encontrados: {Count}", message.JobId, orderedResults.Count);
 
             return orderedResults.Count;
         }
         catch (OperationCanceledException)
         {
-            _logger.LogInformation("Processing cancelled for job {JobId}", message.JobId);
+            _logger.LogInformation("Processamento cancelado para o job {JobId}", message.JobId);
             throw;
         }
         catch (Exception ex)
