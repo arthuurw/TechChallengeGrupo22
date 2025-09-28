@@ -19,6 +19,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="ZXing.Net.Bindings.ImageSharp" Version="0.16.8" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\VisionaryAnalytics.Infrastructure\VisionaryAnalytics.Infrastructure.csproj" />
   </ItemGroup>
 
