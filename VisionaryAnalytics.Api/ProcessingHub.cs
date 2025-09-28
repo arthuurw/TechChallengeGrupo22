@@ -12,4 +12,8 @@ public class ProcessingHub : Hub
     public async Task NotifyCompleted(Guid jobId, int resultsCount)
         => await Clients.Group(jobId.ToString())
             .SendAsync("processingCompleted", new { jobId, resultsCount });
+
+    public async Task NotifyFailed(Guid jobId, string errorMessage)
+        => await Clients.Group(jobId.ToString())
+            .SendAsync("processingFailed", new { jobId, errorMessage });
 }
