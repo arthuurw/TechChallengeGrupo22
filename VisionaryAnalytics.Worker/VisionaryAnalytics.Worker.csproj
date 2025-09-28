@@ -14,7 +14,6 @@
     <PackageReference Include="RabbitMQ.Client" Version="7.1.2" />
     <PackageReference Include="SixLabors.ImageSharp" Version="3.1.4" />
     <PackageReference Include="StackExchange.Redis" Version="2.9.24" />
-    <PackageReference Include="ZXing.ImageSharp" Version="0.1.1" />
     <PackageReference Include="ZXing.Net" Version="0.16.10" />
   </ItemGroup>
 

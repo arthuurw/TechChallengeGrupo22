@@ -73,8 +73,11 @@ var app = builder.Build();
 var uploadOptions = app.Services.GetRequiredService<IOptions<UploadOptions>>().Value;
 Directory.CreateDirectory(uploadOptions.RootPath);
 
-app.UseSwagger();
-app.UseSwaggerUI();
+if (app.Environment.IsDevelopment())
+{
+    app.UseSwagger();
+    app.UseSwaggerUI();
+}
 app.UseHttpsRedirection();
 
 app.MapHealthChecks("/health");
