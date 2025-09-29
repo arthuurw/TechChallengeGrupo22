@@ -21,12 +21,18 @@ public sealed class VideoJobProcessor : IVideoJobProcessor
     private readonly IVideoJobStore _store;
     private readonly IProcessingNotifier _notifier;
     private readonly VideoProcessingOptions _options;
+    private readonly Func<VideoJobMessage, string, CancellationToken, Task> _extractFramesAsync;
+    private readonly Func<string, int, double, CancellationToken, ValueTask<VideoJobResult?>> _tryDecodeFrameAsync;
+    private readonly Action<string> _cleanup;
 
     public VideoJobProcessor(
         ILogger<VideoJobProcessor> logger,
         IVideoJobStore store,
         IProcessingNotifier notifier,
-        IOptions<VideoProcessingOptions> optionsAccessor)
+        IOptions<VideoProcessingOptions> optionsAccessor,
+        Func<VideoJobMessage, string, CancellationToken, Task>? extractFramesAsync = null,
+        Func<string, int, double, CancellationToken, ValueTask<VideoJobResult?>>? tryDecodeFrameAsync = null,
+        Action<string>? cleanup = null)
     {
         ArgumentNullException.ThrowIfNull(logger);
         ArgumentNullException.ThrowIfNull(store);
@@ -37,6 +43,9 @@ public sealed class VideoJobProcessor : IVideoJobProcessor
         _store = store;
         _notifier = notifier;
         _options = optionsAccessor.Value;
+        _extractFramesAsync = extractFramesAsync ?? ExtractFramesAsync;
+        _tryDecodeFrameAsync = tryDecodeFrameAsync ?? TryDecodeFrameAsync;
+        _cleanup = cleanup ?? TryCleanup;
     }
 
     public async Task<int> ProcessAsync(VideoJobMessage message, CancellationToken cancellationToken)
@@ -59,7 +68,7 @@ public sealed class VideoJobProcessor : IVideoJobProcessor
 
         try
         {
-            await ExtractFramesAsync(message, extractionDirectory, cancellationToken);
+            await _extractFramesAsync(message, extractionDirectory, cancellationToken);
 
             cancellationToken.ThrowIfCancellationRequested();
 
@@ -84,7 +93,7 @@ public sealed class VideoJobProcessor : IVideoJobProcessor
                 CancellationToken = cancellationToken
             }, async (frame, token) =>
             {
-                var result = await TryDecodeFrameAsync(frame.Path, frame.Index, message.Fps, token);
+                var result = await _tryDecodeFrameAsync(frame.Path, frame.Index, message.Fps, token);
                 if (result is not null)
                 {
                     results.Add(result);
@@ -122,7 +131,7 @@ public sealed class VideoJobProcessor : IVideoJobProcessor
         }
         finally
         {
-            TryCleanup(extractionDirectory);
+            _cleanup(extractionDirectory);
         }
     }
 

@@ -1,0 +1,45 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: visionary-worker
+  namespace: visionary-analytics
+  labels:
+    app: visionary-worker
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: visionary-worker
+  template:
+    metadata:
+      labels:
+        app: visionary-worker
+    spec:
+      containers:
+        - name: worker
+          image: techchallengegrupo22/worker:latest
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: DOTNET_ENVIRONMENT
+              value: Production
+            - name: REDIS__CONNECTION
+              value: redis:6379
+            - name: RABBITMQ__HOST
+              value: rabbitmq
+            - name: RABBITMQ__USER
+              value: guest
+            - name: RABBITMQ__PASSWORD
+              value: guest
+            - name: RABBITMQ__QUEUE
+              value: video-jobs
+            - name: SIGNALR__HUBURL
+              value: http://visionary-api:8080/hubs/processing
+            - name: FFMPEG__BINARY_FOLDER
+              value: /usr/bin
+          volumeMounts:
+            - name: videos-data
+              mountPath: /data/videos
+      volumes:
+        - name: videos-data
+          persistentVolumeClaim:
+            claimName: videos-data
