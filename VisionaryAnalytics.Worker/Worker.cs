@@ -17,8 +17,8 @@ public sealed class Worker : BackgroundService
     private readonly ILogger<Worker> _logger;
     private readonly IServiceScopeFactory _scopeFactory;
     private readonly RabbitMqOptions _options;
-    private RabbitMQ.Client.IConnection? _connection;
-    private RabbitMQ.Client.IModel? _channel;
+    private IConnection? _connection;
+    private IModel? _channel;
     private AsyncEventingBasicConsumer? _consumer;
     private readonly TimeSpan _reconnectDelay = TimeSpan.FromSeconds(5);
     private readonly JsonSerializerOptions _serializerOptions = new(JsonSerializerDefaults.Web);
@@ -105,7 +105,7 @@ public sealed class Worker : BackgroundService
 
         CleanupConnection();
 
-        var factory = new RabbitMQ.Client.ConnectionFactory
+        var factory = new ConnectionFactory
         {
             HostName = _options.HostName,
             UserName = _options.UserName,
