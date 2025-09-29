@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using RabbitMQ.Client;
 using System.Text.Json;
 using Microsoft.Extensions.Options;
@@ -5,6 +6,7 @@ using VisionaryAnalytics.Infrastructure.Interface;
 
 namespace VisionaryAnalytics.Infrastructure.Rabbit;
 
+[ExcludeFromCodeCoverage]
 public sealed class RabbitMqPublisher : IRabbitMqPublisher
 {
     private readonly IConnection _connection;
