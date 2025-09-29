@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using FFMpegCore;
 using StackExchange.Redis;
 using VisionaryAnalytics.Infrastructure.Interface;
@@ -54,9 +55,13 @@ builder.Services.AddSingleton<IConnectionMultiplexer>(_ =>
         "redis:6379"));
 
 builder.Services.AddSingleton<IVideoJobStore, RedisVideoJobStore>();
+builder.Services.AddSingleton<IHubConnectionFactory, HubConnectionFactory>();
 builder.Services.AddSingleton<IProcessingNotifier, SignalRProcessingNotifier>();
 builder.Services.AddSingleton<IVideoJobProcessor, VideoJobProcessor>();
 builder.Services.AddHostedService<Worker>();
 
 var host = builder.Build();
 host.Run();
+
+[ExcludeFromCodeCoverage]
+public partial class Program;

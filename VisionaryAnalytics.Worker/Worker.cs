@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
 using Microsoft.Extensions.Options;
 using RabbitMQ.Client;
@@ -8,6 +9,7 @@ using VisionaryAnalytics.Worker.Processing;
 
 namespace VisionaryAnalytics.Worker;
 
+[ExcludeFromCodeCoverage]
 public sealed class Worker : BackgroundService
 {
     private readonly ILogger<Worker> _logger;

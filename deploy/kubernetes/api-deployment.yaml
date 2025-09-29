@@ -1,0 +1,45 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: visionary-api
+  namespace: visionary-analytics
+  labels:
+    app: visionary-api
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: visionary-api
+  template:
+    metadata:
+      labels:
+        app: visionary-api
+    spec:
+      containers:
+        - name: api
+          image: techchallengegrupo22/api:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8080
+          env:
+            - name: ASPNETCORE_ENVIRONMENT
+              value: Production
+            - name: UPLOAD_PATH
+              value: /data/videos
+            - name: REDIS__CONNECTION
+              value: redis:6379
+            - name: RABBITMQ__HOST
+              value: rabbitmq
+            - name: RABBITMQ__USER
+              value: guest
+            - name: RABBITMQ__PASSWORD
+              value: guest
+            - name: RABBITMQ__QUEUE
+              value: video-jobs
+          volumeMounts:
+            - name: videos-data
+              mountPath: /data/videos
+      volumes:
+        - name: videos-data
+          persistentVolumeClaim:
+            claimName: videos-data
