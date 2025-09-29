@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
 using Microsoft.Extensions.Options;
 using RabbitMQ.Client;
@@ -8,13 +9,14 @@ using VisionaryAnalytics.Worker.Processing;
 
 namespace VisionaryAnalytics.Worker;
 
+[ExcludeFromCodeCoverage]
 public sealed class Worker : BackgroundService
 {
     private readonly ILogger<Worker> _logger;
     private readonly IServiceScopeFactory _scopeFactory;
     private readonly RabbitMqOptions _options;
-    private IConnection? _connection;
-    private IModel? _channel;
+    private RabbitMQ.Client.IConnection? _connection;
+    private RabbitMQ.Client.IModel? _channel;
     private readonly JsonSerializerOptions _serializerOptions = new(JsonSerializerDefaults.Web);
 
     public Worker(ILogger<Worker> logger, IServiceScopeFactory scopeFactory, IOptions<RabbitMqOptions> options)
@@ -30,7 +32,7 @@ public sealed class Worker : BackgroundService
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        var factory = new ConnectionFactory
+        var factory = new RabbitMQ.Client.ConnectionFactory
         {
             HostName = _options.HostName,
             UserName = _options.UserName,

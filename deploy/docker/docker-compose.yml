@@ -17,8 +17,8 @@ services:
 
   api:
     build:
-      context: .
-      dockerfile: Dockerfile.api
+      context: ../..
+      dockerfile: deploy/docker/Dockerfile.api
     depends_on:
       - rabbitmq
       - redis
@@ -37,8 +37,8 @@ services:
 
   worker:
     build:
-      context: .
-      dockerfile: Dockerfile.worker
+      context: ../..
+      dockerfile: deploy/docker/Dockerfile.worker
     depends_on:
       - rabbitmq
       - redis

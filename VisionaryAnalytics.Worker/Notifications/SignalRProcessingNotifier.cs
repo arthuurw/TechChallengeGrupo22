@@ -8,16 +8,22 @@ public sealed class SignalRProcessingNotifier : IProcessingNotifier
 {
     private readonly ILogger<SignalRProcessingNotifier> _logger;
     private readonly SignalROptions _options;
+    private readonly IHubConnectionFactory _connectionFactory;
     private readonly SemaphoreSlim _connectionLock = new(1, 1);
-    private HubConnection? _connection;
+    private IHubConnectionContext? _connection;
 
-    public SignalRProcessingNotifier(IOptions<SignalROptions> options, ILogger<SignalRProcessingNotifier> logger)
+    public SignalRProcessingNotifier(
+        IOptions<SignalROptions> options,
+        ILogger<SignalRProcessingNotifier> logger,
+        IHubConnectionFactory connectionFactory)
     {
         ArgumentNullException.ThrowIfNull(options);
         ArgumentNullException.ThrowIfNull(logger);
+        ArgumentNullException.ThrowIfNull(connectionFactory);
 
         _options = options.Value;
         _logger = logger;
+        _connectionFactory = connectionFactory;
     }
 
     public async Task NotifyCompletedAsync(Guid jobId, int resultsCount, CancellationToken cancellationToken = default)
@@ -77,10 +83,7 @@ public sealed class SignalRProcessingNotifier : IProcessingNotifier
         {
             if (_connection is null)
             {
-                _connection = new HubConnectionBuilder()
-                    .WithUrl(_options.HubUrl)
-                    .WithAutomaticReconnect()
-                    .Build();
+                _connection = _connectionFactory.Create(_options.HubUrl);
             }
 
             if (_connection.State == HubConnectionState.Disconnected)

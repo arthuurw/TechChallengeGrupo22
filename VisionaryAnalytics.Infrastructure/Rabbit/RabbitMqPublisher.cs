@@ -1,13 +1,15 @@
-using RabbitMQ.Client;
+using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
 using Microsoft.Extensions.Options;
+using RabbitMQ.Client;
 using VisionaryAnalytics.Infrastructure.Interface;
 
 namespace VisionaryAnalytics.Infrastructure.Rabbit;
 
+[ExcludeFromCodeCoverage]
 public sealed class RabbitMqPublisher : IRabbitMqPublisher
 {
-    private readonly IConnection _connection;
+    private readonly RabbitMQ.Client.IConnection _connection;
     private readonly RabbitMqOptions _options;
     private static readonly JsonSerializerOptions SerializerOptions = new(JsonSerializerDefaults.Web);
 
@@ -16,7 +18,7 @@ public sealed class RabbitMqPublisher : IRabbitMqPublisher
         ArgumentNullException.ThrowIfNull(optionsAccessor);
         _options = optionsAccessor.Value;
 
-        var factory = new ConnectionFactory
+        var factory = new RabbitMQ.Client.ConnectionFactory
         {
             HostName = _options.HostName,
             UserName = _options.UserName,

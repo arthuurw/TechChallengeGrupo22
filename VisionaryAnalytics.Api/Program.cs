@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using StackExchange.Redis;
 using VisionaryAnalytics.Api;
 using VisionaryAnalytics.Infrastructure.Interface;
@@ -143,3 +144,6 @@ app.MapGet("/videos/{jobId:guid}/results", async (Guid jobId, IVideoJobStore sto
 });
 
 app.Run();
+
+[ExcludeFromCodeCoverage]
+public partial class Program;
